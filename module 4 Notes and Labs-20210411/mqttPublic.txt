@@ -1,0 +1,30 @@
+import network
+from time import sleep
+from umqtt.simple import MQTTClient
+from machine import Pin
+
+#--------------MQTT Configuration-------------------
+SERVER = "yourMQTTbroker"
+client = MQTTClient("yourClientName", SERVER)
+
+#--------------Network Configuration-------------------
+station = network.WLAN(network.STA_IF)    #our device set as station 
+station.active(True)                      #activate WiFi capability
+station.disconnect()                      #disconnect from any network(wifi)
+
+
+#--------------Connect to AP-------------------
+if not wlan.isconnected():				#if our device is not connected to any network, connect to new AP
+  print('connecting to network...')			
+  station.connect('yourSSID', 'yourpassword')		#connect to AP
+  client.connect()					#connect to MQTT Broker
+    
+    
+#--------------Publish-------------------    
+while station.isconnected():				#while connected to network(wifi) publish data to MQTT Broker
+  
+    topic = "yourMQTTTopic"				#MQTT topic
+    client.publish(topic, "yourdummydata")		#publish to with data
+    print("data published")
+    sleep(5)
+

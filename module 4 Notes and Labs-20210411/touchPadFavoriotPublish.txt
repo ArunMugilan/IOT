@@ -1,0 +1,41 @@
+import json
+import network    
+from time import sleep
+from umqtt.simple import MQTTClient
+from machine import Pin, TouchPad
+
+#--------------TouchPad Configuration-------------------
+touch = TouchPad(Pin(14))
+
+#--------------MQTT Configuration-------------------
+SERVER = "mqtt.favoriot.com"
+client = MQTTClient("yourClientName", SERVER, user="yourAccessToken", password="yourAccessToken")
+
+#--------------Network Configuration-------------------
+station = network.WLAN(network.STA_IF)    #our device set as station 
+station.active(True)                      #activate WiFi capability
+station.disconnect()                      #disconnect from any network(wifi)
+
+
+#--------------Connect to AP-------------------
+if not station.isconnected():             #if our device is not connected to any network, connect to new AP
+
+  print('connecting to network...')
+  station.connect('yourSSID', 'yourPassword')   #Connect to access point
+  sleep(3)
+  client.connect()                                   #connect to MQTT broker
+  
+#--------------Publish-------------------    
+while station.isconnected():                         #while connected to network(wifi) publish data to MQTT Broker  
+    
+    touchVal = str(touch.read())
+    dat = {"device_developer_id": "yourDeviceId", "data": {"test":touchVal}}	#insert touchpad value into dict
+    data = str(json.dumps(dat))							#dump dat to json then stringify it 
+    print(data)
+    topic = "yourAccessToken/v2/streams"    					#MQTT topic
+    client.publish(topic, data) 						#publish to broker
+    print("data published")
+    sleep(5)
+
+
+

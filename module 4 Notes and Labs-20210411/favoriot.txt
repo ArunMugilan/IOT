@@ -1,0 +1,32 @@
+import network    
+from time import sleep
+from umqtt.simple import MQTTClient
+
+#--------------MQTT Configuration-------------------
+SERVER = "mqtt.favoriot.com"
+client = MQTTClient("yourClientName", SERVER, user="yourAccessToken", password="yourAccessToken")
+
+#--------------Network Configuration-------------------
+station = network.WLAN(network.STA_IF)    #our device set as station 
+station.active(True)                      #activate WiFi capability
+station.disconnect()                      #disconnect from any network(wifi)
+
+
+#--------------Connect to AP-------------------
+if not station.isconnected():             #if our device is not connected to any network, connect to new AP
+
+  print('connecting to network...')
+  station.connect('yourSSID', 'yourPassword')   #Connect to access point
+  sleep(3)
+  client.connect()                                   #connect to MQTT broker
+  
+#--------------Publish-------------------    
+while station.isconnected():                         #while connected to network(wifi) publish data to MQTT Broker  
+       
+    topic = "yourAccessToken/v2/streams"    #MQTT topic
+    client.publish(topic, '{"device_developer_id": "yourDeviceID", "data": {"test":"test123"}}')		#publish to with data
+    print("data published")
+    sleep(5)
+
+
+
